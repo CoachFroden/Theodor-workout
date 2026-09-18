@@ -1,0 +1,42 @@
+window.ACTIVE_DEFAULTS = [
+{id:"leg-curl",name:"Sittende leg curl",weight:30,sets:3,reps:"10",type:"weight",desc:"Sitt helt bak i setet og rett opp overkroppen samtidig som du holder i håndtakene. Press anklene mot puten, bøy maksimalt i knærne og vend rolig tilbake til startstillingen."},
+{id:"leg-extension",name:"Leg extension i apparat",weight:30,sets:3,reps:"10",type:"weight",desc:"Sitt med bøyde knær (ca. 120 grader) og strekk benene maksimalt ut. Senk rolig tilbake."},
+{id:"rowing",name:"Sittende roing m/kabel",weight:35,sets:3,reps:"12",type:"weight",desc:"Sitt foroverbøyd, med en liten bøy i knærne og skuldrene trukket godt fram. Før overkroppen tilbake, trekk håndtaket mot mageregionen, press brystkassen fram og trekk skuldrene sammen. Slipp rolig tilbake til startstillingen og gjenta."},
+{id:"wipers",name:"Ryggliggende vindusvisker m/stor ball",weight:null,sets:3,reps:"6",type:"body",desc:"Ligg på ryggen på en matte. Len deg på albuene, hold bena nesten strake og hold en stor ball mellom bena. Hold bena opp fra bakken, omtrent 80° fra bakken. Beveg bena som en vindusvisker fra side til side."},
+{id:"triceps-cable",name:"Stående triceps press m/kabel",weight:10,sets:3,reps:"12",type:"weight",desc:"Ta et godt grep om tauet, hold albuene inne mot kroppen. Press ned slik at armene strekkes helt."},
+{id:"curl",name:"Sittende hantelcurl",weight:6,sets:3,reps:"8",type:"weight",desc:"Sitt med hantlene ned langs siden. Bøy i albuene og press helt opp samtidig som du dreier hantlene utover. Senk rolig tilbake."},
+{id:"shoulder-press",name:"Skulderpress i apparat",weight:15,sets:3,reps:"8",type:"weight",desc:"Sitt med god støtte i ryggen og ta et bredt grep. Spenn godt opp i mage- og korsryggregionen og press opp fra ca. skuldernivå til armene er strake. Senk langsomt ned igjen og gjenta."},
+{id:"leg-press",name:"Benpress",weight:40,sets:3,reps:"8",type:"weight",desc:"Plasser benene på fotbrettet i skulderbreddes avstand. Ha ca. 90 grader i knærne. Stram opp i mage- og korsryggregionen og press opp til benene er nesten strake. Vend tilbake til startstillingen og gjenta."},
+{id:"pullup-assist",name:"Pullup m/støtte",weight:25,sets:3,reps:"9-10",type:"assist",desc:"Plasser benene på fotbrettet og heng med et bredt grep. Trekk deg rett opp til skuldrene er på høyde med grepet og senk rolig tilbake. Hold blikket rettet framover under hele bevegelsen."},
+{id:"bosu",name:"Sittende balanse på bosu m/ball",weight:null,sets:3,reps:"40 sek",duration:40,type:"time",desc:"Sitt på bosuen med en ball i hendene. Bøy opp bena og forsøk å finne balansen på bosuen mens beina beveges som sykling. Hold ryggen rett under hele øvelsen."},
+{id:"chest-press",name:"Brystpress i apparat",weight:30,sets:3,reps:"7",type:"weight",desc:"Sitt med lave skuldre og et godt grep om håndtakene. Albuene holdes på høyde med grepet. Press fram til armene er strake og før noe langsommere tilbake til brystet."},
+{id:"hamstring-stretch",name:"Tøyning av hamstrings",weight:null,sets:3,reps:"1 per fot",duration:30,type:"stretch",desc:"Plasser beinet på et stabilt underlag i ca. lårhøyde med lett bøy i kneet. Press hælen ned i 10 sekunder, spenn av i 10 sekunder, og bøy så overkroppen framover i 20 sekunder."},
+{id:"calf-wall",name:"Dynamisk tøy av legg mot vegg",weight:null,sets:3,reps:"1 per fot",duration:30,type:"stretch",desc:"Støtt deg til en vegg. Plasser den aktive foten vinkelrett på og så langt fra veggen som mulig. Hold hælen i kontakt med underlaget og bøy kneet fram til det akkurat kommer i kontakt med veggen."},
+{id:"posterior-stretch",name:"Tøyning bakside lår og legg",weight:null,sets:3,reps:"1 per fot",duration:30,type:"stretch",desc:"Stå med en liten bøy i det ene kneet og strekk det andre benet framfor deg. Støtt deg med hendene på kneet og hold ryggen rett. Senk overkroppen rolig framover til du kjenner at det strekker på baksiden av benet."}
+];
+
+window.EXERCISE_LIBRARY = [
+["Sittende leg curl","20 kg","9","Sitt helt bak i setet og rett opp overkroppen samtidig som du holder i håndtakene. Press anklene mot puten, bøy maksimalt i knærne og vend rolig tilbake."],
+["Leg extension i apparat","20 kg","6","Sitt med bøyde knær (ca. 120 grader) og strekk benene maksimalt ut. Senk rolig tilbake."],
+["Benpress","20 kg","10","Plasser benene på fotbrettet i skulderbreddes avstand. Ha ca. 90 grader i knærne. Stram opp i mage- og korsryggregionen og press opp til benene er nesten strake."],
+["Goblet squat med kettlebell","12 kg","12","Start stående med kettlebellen foran og tett inntil kroppen. Albuene holdes rett ned under kulen. Sett deg ned i en dyp knebøy og hold ryggen rak gjennom hele bevegelsen."],
+["Seteløft","—","10","Plasser fotsålene på gulvet og armene ut til siden. Aktiver magen, løft bekkenet opp fra gulvet til du ligger på skulderbladene, og senk og løft langsomt."],
+["Splittbøy","—","10","Stå i splittposisjon med brystet opp og tyngdepunktet mellom bena. Senk overkroppen rett ned til bakre kne når gulvet og trykk opp via begge bein."],
+["Step up på trinn","—","10","Stå foran et høyt trinn eller en plattform. Sett foten på trinnet og løft deg opp med tyngden på dette beinet. Unngå å sparke fra med bakre fot."],
+["Sittende roing m/kabel","30 kg","10","Sitt foroverbøyd med en liten bøy i knærne og skuldrene trukket fram. Før overkroppen tilbake, trekk håndtaket mot magen, press brystkassen fram og trekk skuldrene sammen."],
+["Nedtrekk bredt nøytralt grep","30 kg","8","Fest grepet og legg deg ca. 45 grader bakover. Press brystkassen fram og trekk stangen ned til brystet. Før langsomt tilbake."],
+["Nedtrekk til bryst i apparat","30 kg","8","Ta et bredt grep, legg deg litt bakover og kikk skrått opp. Press brystkassen fram og trekk stangen ned til brystet. Før langsomt tilbake."],
+["Stående omvendt flyes m/kabel","2,5 kg","8","Kryss håndtakene foran kroppen. Dra håndtakene bakover i en sirkulær bevegelse med albuene lett bøyde og press skulderbladene sammen."],
+["Sittende hantelcurl","6 kg","8","Sitt med hantlene ned langs siden. Bøy i albuene og press helt opp samtidig som du dreier hantlene utover. Senk rolig tilbake."],
+["Rygghev","—","30 sek × 2","Ligg på magen med armene under hodet. Knip setet, stram ryggmuskulaturen og løft overkroppen. Hold 3–5 sekunder og senk tilbake."],
+["Dead bug","—","10","Ligg på ryggen på en matte. Løft opp beina og armene. Senk vekselvis motsatt bein og arm og gjenta på motsatt side."],
+["Russian twist m/kettlebell","12 kg","8-10","Sitt på rumpa med beina i luften hvis ønskelig. Før kettlebellen fra venstre til høyre side over hofta. Unngå å krumme ryggen."],
+["Brystpress i apparat","30 kg","4","Sitt med lave skuldre og et godt grep om håndtakene. Press fram til armene er strake og før noe langsommere tilbake til brystet."],
+["Pushups mot benk","—","10","Stå i pushup-stilling mot en benk med skulderbredt grep. Hold rygg og bekken nøytralt, senk overkroppen mot benken og press tilbake."],
+["Stående flyes m/kabel","2,5 kg","10","Stå med rett rygg, brystet fram og litt bøy i albuene. Press armene fram i brysthøyde til lillefingrene møter hverandre. Slipp langsomt tilbake."],
+["Skrå brystpress m/hantler","6 kg","12","Ligg på ryggen med føttene i gulvet. Senk hantlene i en svak bue mot utsiden av skuldrene og press tilbake til startstillingen."],
+["Stående sidehev m/hantler","3 kg","8","Stå litt framoverbøyd med bøy i albuene. Løft armene ut og opp og senk langsomt tilbake."],
+["Stående fronthev","3 kg","6","Stå med en hantel i hver hånd. Løft vekselvis armene opp foran kroppen til litt over horisontalplanet."],
+["Stående triceps press m/kabel","10 kg","10","Ta et godt grep om tauet, hold albuene inne mot kroppen. Press ned slik at armene strekkes helt."],
+["Stående enarms triceps press","2,5 kg","6","Stå med den ene armen hevet over hodet mens den andre støtter i albuen. Senk hantelen ned bak hodet, press tilbake og bytt arm."]
+];
