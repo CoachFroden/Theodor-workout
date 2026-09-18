@@ -30,7 +30,7 @@ function home(){
 }
 function program(){
  app.innerHTML="<div class='section-head'><div><p class='eyebrow'>PT-PROGRAM</p><h2>Ditt program</h2></div><span class='tiny'>14 øvelser</span></div><p class='muted'>Startverdiene kommer fra PT-en. Endringer lagres på denne telefonen.</p><div class='exercise-list'>"+
- cfg.map((ex,i)=>"<div class='exercise-row'><div class='exercise-no'>"+String(i+1).padStart(2,"0")+"</div><div><h3>"+esc(ex.name)+"</h3><p>"+esc(target(ex))+"</p><div class='mini'>"+(ex.type==="assist"?"STØTTEVEKT":"PT-PROGRAM")+"</div></div><button class='edit-btn' data-edit='"+ex.id+"' aria-label='Rediger'>✎</button></div>").join("")+"</div>";
+ cfg.map((ex,i)=>"<div class='exercise-row'><div class='exercise-no'>"+String(i+1).padStart(2,"0")+"</div><button class='exercise-main' data-detail='"+ex.id+"' aria-label='Vis "+esc(ex.name)+"'><span class='exercise-copy'><h3>"+esc(ex.name)+"</h3><p>"+esc(target(ex))+"</p><span class='mini'>"+(ex.type==="assist"?"STØTTEVEKT":"PT-PROGRAM")+"</span></span><span class='exercise-chevron' aria-hidden='true'>›</span></button><button class='edit-btn' data-edit='"+ex.id+"' aria-label='Rediger "+esc(ex.name)+"'>✎</button></div>").join("")+"</div>";
 }
 function progress(){
  const l=level();
@@ -75,6 +75,25 @@ function finish(){
  const fin=new Date(),done=cur.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0),mins=Math.max(1,Math.round((fin-new Date(cur.startedAt))/60000));
  hist.unshift({id:cur.id,startedAt:cur.startedAt,finishedAt:fin.toISOString(),completedSets:done,durationMin:mins,exercises:cur.exercises});save(KEY.hist,hist);localStorage.removeItem(KEY.cur);cur=null;stopTimer(false);$("#finishSummary").textContent=done+" sett • "+mins+" min • +"+(done*10+40)+" XP";$("#finishDialog").showModal();
 }
+function detailValue(ex){
+ const weight=ex.weight==null?"Ingen":(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg");
+ return {weight:weight,sets:String(ex.sets),reps:String(ex.reps),duration:ex.duration?String(ex.duration)+" sek":null};
+}
+function showDetail(id){
+ const ex=cfg.find(x=>x.id===id);if(!ex)return;
+ const d=detailValue(ex),dlg=$("#exerciseDialog");
+ $("#detailTitle").textContent=ex.name;
+ $("#detailBody").innerHTML=
+   "<div class='detail-stats'>"+
+   "<div class='detail-stat'><span>VEKT</span><strong>"+esc(d.weight)+"</strong></div>"+
+   "<div class='detail-stat'><span>SETT</span><strong>"+esc(d.sets)+"</strong></div>"+
+   "<div class='detail-stat'><span>REPS</span><strong>"+esc(d.reps)+"</strong></div>"+
+   "</div>"+
+   (d.duration?"<div class='detail-time'><span>⏱</span><div><small>VARIGHET</small><strong>"+esc(d.duration)+"</strong></div></div>":"")+
+   "<div class='detail-how'><p class='eyebrow'>SLIK GJØR DU</p><p>"+esc(ex.desc)+"</p></div>"+
+   (ex.type==="assist"?"<p class='detail-note'>På denne øvelsen er vekten støttevekt. Lavere tall betyr mindre hjelp.</p>":"");
+ dlg.showModal();
+}
 function edit(id){
  const ex=cfg.find(x=>x.id===id);if(!ex)return;const d=$("#editorDialog");d.dataset.id=id;$("#editorTitle").textContent=ex.name;$("#editorFields").innerHTML="<div class='form-grid'>"+(ex.weight!=null?"<div class='form-field'><label>"+(ex.type==="assist"?"Støtte":"Vekt")+" (kg)</label><input id='editWeight' inputmode='decimal' value='"+ex.weight+"'></div>":"")+"<div class='form-field'><label>Sett</label><input id='editSets' inputmode='numeric' value='"+ex.sets+"'></div><div class='form-field'><label>Reps / mål</label><input id='editReps' value='"+esc(ex.reps)+"'></div></div>";d.showModal();
 }
@@ -88,11 +107,13 @@ document.addEventListener("click",e=>{
  const vb=e.target.closest("[data-view]");if(vb){setView(vb.dataset.view);return}
  if(e.target.closest("[data-action='start']")){startWorkout();return}
  const eb=e.target.closest("[data-edit]");if(eb){edit(eb.dataset.edit);return}
+ const db=e.target.closest("[data-detail]");if(db){showDetail(db.dataset.detail);return}
  const cb=e.target.closest("[data-check]");if(cb&&cur){let s=cur.exercises[cur.index].sets[Number(cb.dataset.check)];s.done=!s.done;save(KEY.cur,cur);workout();return}
  if(e.target.id==="prevEx"&&cur){stopTimer(false);cur.index=Math.max(0,cur.index-1);save(KEY.cur,cur);workout();return}
  if(e.target.id==="nextEx"&&cur){if(cur.index===cfg.length-1)finish();else{stopTimer(false);cur.index++;save(KEY.cur,cur);workout()}return}
  if(e.target.id==="quitWorkout"){if(confirm("Avslutte økten? Det som er registrert i denne økten slettes.")){cur=null;localStorage.removeItem(KEY.cur);setView("home")}return}
  if(e.target.id==="timerBtn"){startTimer(cfg[cur.index].duration||30);return}
+ if(e.target.id==="detailClose"||e.target.id==="detailDone"){$("#exerciseDialog").close();return}
  if(e.target.id==="editorReset"){e.preventDefault();resetEdit();return}
  if(e.target.id==="editorSave"){e.preventDefault();saveEdit();$("#editorDialog").close();return}
  if(e.target.id==="saveSpotify"){localStorage.setItem(KEY.spot,$("#spotifyUrl").value.trim());toast("Spotify-lenke lagret ✓");return}
