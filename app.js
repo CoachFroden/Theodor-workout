@@ -21,7 +21,7 @@ function setView(v){view=v;document.querySelectorAll(".nav-btn[data-view]").forE
 function render(){if(view==="home")home();if(view==="program")program();if(view==="progress")progress();if(view==="more")more();if(view==="workout")workout()}
 function home(){
  const l=level(),last=hist[0];
- app.innerHTML="<section class='hero'><div class='hero-card'><p class='eyebrow'>GK MODE // BUILD THE WALL</p><h2 class='hero-title'>READY TO<br><span>LEVEL UP?</span></h2><p class='muted'>PT-programmet klart. Én øvelse om gangen. Gjør jobben, logg settene, ferdig.</p><div class='hero-actions'><button class='primary' data-action='start'>"+(cur?"Fortsett økten":"Start økten")+" &nbsp;▶</button><button class='secondary' data-view='program'>Se program</button></div><div class='pitch-lines'></div></div></section>"+
+ app.innerHTML="<section class='hero'><div class='hero-card'><p class='eyebrow'>CITY BLUE // GK MODE</p><h2 class='hero-title'>READY TO<br><span>LEVEL UP?</span></h2><p class='muted'>PT-programmet klart. Én øvelse om gangen. Gjør jobben, logg settene, ferdig.</p><div class='hero-actions'><button class='primary' data-action='start'>"+(cur?"Fortsett økten":"Start økten")+" &nbsp;▶</button><button class='secondary' data-view='program'>Se program</button></div><div class='pitch-lines'></div><div class='tiny' style='margin-top:10px'>GK inspiration • Donnarumma</div></div></section>"+
  "<div class='stat-grid'><div class='stat'><strong>"+hist.length+"</strong><span>Økter</span></div><div class='stat'><strong>"+totalSets()+"</strong><span>Sett gjort</span></div><div class='stat'><strong>"+l.n+"</strong><span>Level</span></div></div>"+
  "<div class='section-head'><div><p class='eyebrow'>PROGRAM</p><h2>14 øvelser</h2></div><button data-view='program'>Alle →</button></div>"+
  "<div class='card next-card'><div class='exercise-no'>01</div><div><h3>"+esc(cfg[0].name)+"</h3><p>"+esc(target(cfg[0]))+"</p></div></div>"+
@@ -78,6 +78,7 @@ function finish(){
 function edit(id){
  const ex=cfg.find(x=>x.id===id);if(!ex)return;const d=$("#editorDialog");d.dataset.id=id;$("#editorTitle").textContent=ex.name;$("#editorFields").innerHTML="<div class='form-grid'>"+(ex.weight!=null?"<div class='form-field'><label>"+(ex.type==="assist"?"Støtte":"Vekt")+" (kg)</label><input id='editWeight' inputmode='decimal' value='"+ex.weight+"'></div>":"")+"<div class='form-field'><label>Sett</label><input id='editSets' inputmode='numeric' value='"+ex.sets+"'></div><div class='form-field'><label>Reps / mål</label><input id='editReps' value='"+esc(ex.reps)+"'></div></div>";d.showModal();
 }
+function resetEdit(){const id=$("#editorDialog").dataset.id,ix=cfg.findIndex(x=>x.id===id);if(ix<0)return;cfg[ix]=clone(window.ACTIVE_DEFAULTS[ix]);save(KEY.cfg,cfg);$("#editorDialog").close();toast("PT-verdien er gjenopprettet ✓");render()}
 function saveEdit(){
  const id=$("#editorDialog").dataset.id,ix=cfg.findIndex(x=>x.id===id);if(ix<0)return;const ex=cfg[ix],w=$("#editWeight");if(w)ex.weight=Math.max(0,Number(String(w.value).replace(",","."))||0);ex.sets=Math.max(1,Math.min(12,parseInt($("#editSets").value,10)||1));ex.reps=$("#editReps").value.trim()||ex.reps;save(KEY.cfg,cfg);toast("Lagret ✓");render();
 }
@@ -92,6 +93,7 @@ document.addEventListener("click",e=>{
  if(e.target.id==="nextEx"&&cur){if(cur.index===cfg.length-1)finish();else{stopTimer(false);cur.index++;save(KEY.cur,cur);workout()}return}
  if(e.target.id==="quitWorkout"){if(confirm("Avslutte økten? Det som er registrert i denne økten slettes.")){cur=null;localStorage.removeItem(KEY.cur);setView("home")}return}
  if(e.target.id==="timerBtn"){startTimer(cfg[cur.index].duration||30);return}
+ if(e.target.id==="editorReset"){e.preventDefault();resetEdit();return}
  if(e.target.id==="editorSave"){e.preventDefault();saveEdit();$("#editorDialog").close();return}
  if(e.target.id==="saveSpotify"){localStorage.setItem(KEY.spot,$("#spotifyUrl").value.trim());toast("Spotify-lenke lagret ✓");return}
  if(e.target.id==="openSpotify"){let u=($("#spotifyUrl")?.value||localStorage.getItem(KEY.spot)||"").trim();window.open(u.startsWith("https://open.spotify.com/")?u:"https://open.spotify.com/","_blank","noopener");return}
