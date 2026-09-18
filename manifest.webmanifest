@@ -1,0 +1,13 @@
+{
+  "name":"Theodor Workout",
+  "short_name":"TW Workout",
+  "description":"Theodors personlige styrkeprogram",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#06111c",
+  "theme_color":"#07131f",
+  "orientation":"portrait",
+  "icons":[
+    {"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
