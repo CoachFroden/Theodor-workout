@@ -45,6 +45,23 @@ button{cursor:pointer}
 .exercise-list{display:grid;gap:10px}
 .exercise-row{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:20px}
 .exercise-row .mini{font-size:11px;color:var(--sky);font-weight:850;margin-top:5px}.edit-btn{width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:#0c2031;color:var(--ink)}
+
+.exercise-main{min-width:0;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:0;background:transparent;color:var(--ink);padding:8px 2px;border-radius:14px}
+.exercise-main:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+.exercise-copy{min-width:0;display:block}.exercise-copy h3{margin:0 0 5px;font-size:16px}.exercise-copy p{margin:0;color:var(--muted);font-size:12px}.exercise-copy .mini{display:block}
+.exercise-chevron{flex:0 0 auto;color:var(--sky);font-size:30px;font-weight:400;line-height:1;opacity:.8}
+.exercise-row:has(.exercise-main:active){border-color:rgba(111,199,255,.22);background:rgba(111,199,255,.045)}
+.exercise-sheet{overflow:auto}
+.detail-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:4px 0 14px}
+.detail-stat{min-width:0;padding:14px 10px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.035)}
+.detail-stat span{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.12em;margin-bottom:5px}
+.detail-stat strong{display:block;font-size:16px;line-height:1.15;overflow-wrap:anywhere}
+.detail-time{display:flex;align-items:center;gap:11px;padding:12px 14px;margin-bottom:14px;border:1px solid rgba(111,199,255,.14);border-radius:16px;background:rgba(111,199,255,.055)}
+.detail-time>span{font-size:22px}.detail-time small{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.12em}.detail-time strong{display:block;margin-top:2px}
+.detail-how{margin:4px 0 16px;padding:16px;border-radius:18px;background:#071521;border:1px solid var(--line)}
+.detail-how>p:last-child{margin:9px 0 0;color:#d4e1ea;font-size:14px;line-height:1.55}
+.detail-note{margin:0 0 16px;padding:12px 14px;border-left:3px solid var(--sky);border-radius:0 13px 13px 0;background:rgba(111,199,255,.055);color:var(--muted);font-size:12px;line-height:1.45}
+
 .filters{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);padding:9px 13px;border-radius:999px;font-weight:800;font-size:12px}.chip.active{background:rgba(111,199,255,.14);color:var(--sky);border-color:rgba(111,199,255,.28)}
 .workout-head{display:flex;justify-content:space-between;align-items:center;margin:8px 0 14px}.workout-head h2{margin:3px 0 0}.progress-track{height:6px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-bottom:16px}.progress-track i{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--green));border-radius:inherit;transition:width .3s ease}
 .focus-card{padding:20px;border-radius:28px;background:linear-gradient(145deg,#10273a,#091827);border:1px solid rgba(111,199,255,.15);box-shadow:var(--shadow)}
