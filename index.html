@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#07131f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TW Workout" />
+  <meta name="description" content="Theodors personlige treningsapp" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <title>Theodor Workout</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span>TW</span>
+          <i></i>
+        </div>
+        <div>
+          <p class="eyebrow">THEODOR // TRAINING</p>
+          <h1>WORKOUT</h1>
+        </div>
+      </div>
+      <button class="icon-btn" id="soundBtn" aria-label="Lyd av eller på">
+        <span id="soundIcon">◐</span>
+      </button>
+    </header>
+
+    <main id="app" class="main" aria-live="polite"></main>
+
+    <nav class="bottom-nav" aria-label="Hovedmeny">
+      <button class="nav-btn active" data-view="home"><span>⌂</span><b>Hjem</b></button>
+      <button class="nav-btn" data-view="program"><span>▤</span><b>Program</b></button>
+      <button class="nav-btn nav-start" data-action="start"><span>▶</span><b>Start</b></button>
+      <button class="nav-btn" data-view="progress"><span>↗</span><b>Progresjon</b></button>
+      <button class="nav-btn" data-view="more"><span>•••</span><b>Mer</b></button>
+    </nav>
+  </div>
+
+  <dialog id="editorDialog" class="sheet">
+    <form method="dialog" id="editorForm">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <p class="eyebrow">JUSTER ØVELSE</p>
+          <h2 id="editorTitle">Øvelse</h2>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Lukk">×</button>
+      </div>
+      <div id="editorFields"></div>
+      <p class="hint">Endringene lagres på denne telefonen. PT-programmet ligger fortsatt som original i øvelsesbiblioteket.</p>
+      <button class="primary full" value="save" id="editorSave">Lagre</button>
+    </form>
+  </dialog>
+
+  <dialog id="finishDialog" class="sheet center-sheet">
+    <div class="sheet-handle"></div>
+    <div class="finish-badge">✓</div>
+    <p class="eyebrow">ØKT FULLFØRT</p>
+    <h2>STERKT JOBBA.</h2>
+    <p id="finishSummary" class="muted"></p>
+    <button class="primary full" id="finishClose">Til forsiden</button>
+  </dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
