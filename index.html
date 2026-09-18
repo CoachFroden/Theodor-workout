@@ -43,6 +43,19 @@
     </nav>
   </div>
 
+  <dialog id="exerciseDialog" class="sheet exercise-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div>
+        <p class="eyebrow">ØVELSESGUIDE</p>
+        <h2 id="detailTitle">Øvelse</h2>
+      </div>
+      <button class="icon-btn" id="detailClose" aria-label="Lukk">×</button>
+    </div>
+    <div id="detailBody"></div>
+    <button class="primary full" id="detailDone">Skjønner ✓</button>
+  </dialog>
+
   <dialog id="editorDialog" class="sheet">
     <form method="dialog" id="editorForm">
       <div class="sheet-handle"></div>
