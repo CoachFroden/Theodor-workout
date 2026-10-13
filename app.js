@@ -67,7 +67,7 @@ function workout(){
  "<div class='target-line'>"+(ex.weight!=null?"<span class='target-pill'>"+(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg")+"</span>":"")+"<span class='target-pill'>"+esc(ex.reps)+(timed?"":" reps")+"</span></div>"+
  "<div class='active-set'><p class='eyebrow'>"+(activeSet<0?"SETTET ER FERDIG":"NÅ · SETT "+(si+1)+" AV "+log.sets.length)+"</p><div class='set-steps' aria-label='Settstatus'>"+log.sets.map((item,i)=>"<span class='set-step "+(item.done?"done":i===activeSet?"current":"")+"'>"+(item.done?"✓":i+1)+"</span>").join("")+"</div>"+
  (timed?"<div class='timer-box'><div class='timer-time' id='timerTime'>"+formatTime(remaining||ex.duration||30)+"</div><button id='timerBtn' "+(activeSet<0?"disabled":"")+">"+(running?"Pause":remaining?"Fortsett":"Start timer")+"</button></div>":fields)+"</div>"+
- "<div class='workout-controls'><button class='primary full' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Settet er ferdig ✓":"Sett "+(si+1)+" ferdig ✓")+"</button>"+
+ "<div class='workout-controls'><button class='primary full "+(activeSet<0?"set-completed":"")+"' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Fullført ✓":"Sett "+(si+1)+" ferdig ✓")+"</button>"+
  "<button class='undo-set' id='undoWorkout' "+(cur.undo?.length?"":"disabled")+">↶ Angre siste valg</button><div class='focus-actions'><button class='secondary' id='prevEx' "+(previousExercise()<0?"disabled":"")+">← Forrige</button><button class='secondary' id='nextEx'>"+(nextExercise()<0?"Avslutt runden →":"Neste øvelse →")+"</button></div></div></section>";
 }
 
@@ -92,12 +92,7 @@ function completeSet(si){
  const log=cur.exercises[cur.index];if(si==null)si=cur.round;
  if(si!==cur.round||!log.sets[si]||log.sets[si].done)return;
  rememberWorkout();stopTimer(false);log.sets[si].done=true;
- advanceExercise();
-}
-function confirmCompleteSet(){
- if(!cur||cur.roundEnd)return;
- const ex=cur.exercises[cur.index],set=ex.sets[cur.round];if(!set||set.done)return;
- if(confirm("Registrere sett "+(cur.round+1)+" av «"+ex.name+"» som ferdig?"))completeSet();
+ save(KEY.cur,cur);workout();
 }
 function roundSummary(){
  const eligible=cur.exercises.filter(e=>e.sets[cur.round]),done=eligible.filter(e=>e.sets[cur.round].done).length;
@@ -176,7 +171,7 @@ document.addEventListener("click",e=>{
  if(e.target.closest("[data-action='start']")){startWorkout();return}
  const eb=e.target.closest("[data-edit]");if(eb){edit(eb.dataset.edit);return}
  const db=e.target.closest("[data-detail]");if(db){showDetail(db.dataset.detail);return}
- if(e.target.id==="completeSet"){confirmCompleteSet();return}
+ if(e.target.id==="completeSet"){completeSet();return}
  if(e.target.id==="undoWorkout"){undoWorkout();return}
  if(e.target.id==="nextRound"){nextRound();return}
  if(e.target.id==="missingExercises"&&cur){rememberWorkout();cur.roundEnd=false;cur.index=cur.exercises.findIndex(e=>e.sets[cur.round]&&!e.sets[cur.round].done);save(KEY.cur,cur);workout();return}

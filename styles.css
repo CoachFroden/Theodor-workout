@@ -124,3 +124,5 @@ body.countdown-flash::after{content:"";position:fixed;inset:0;z-index:70;pointer
 .round-choices{display:grid;gap:16px;margin-top:20px}
 .round-summary .undo-set{margin-top:0}
 @media(max-height:600px){.workout-mode .focus-actions{margin-top:12px;padding-top:10px}.undo-set{margin-top:6px;min-height:32px}}
+
+.workout-mode .primary.set-completed,.workout-mode .primary.set-completed:disabled{background:var(--green);color:#05241a;opacity:1;box-shadow:0 8px 24px rgba(57,230,164,.18)}
