@@ -18,7 +18,7 @@ function totalXp(){return hist.reduce((a,h)=>a+(h.completedSets||0)*10+40,0)}
 function level(){const x=totalXp();return{n:Math.floor(x/250)+1,x:x,p:x%250,pct:(x%250)/2.5}}
 function toast(msg){let t=$(".toast");if(!t){t=document.createElement("div");t.className="toast";document.body.appendChild(t)}t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1700)}
 function setView(v){view=v;document.querySelectorAll(".nav-btn[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===v));if(v!=="workout")stopTimer(false);render();window.scrollTo({top:0,behavior:"smooth"})}
-function render(){if(view==="home")home();if(view==="program")program();if(view==="progress")progress();if(view==="more")more();if(view==="workout")workout()}
+function render(){document.body.classList.toggle("workout-mode",view==="workout");if(view==="home")home();if(view==="program")program();if(view==="progress")progress();if(view==="more")more();if(view==="workout")workout()}
 function home(){
  const l=level(),last=hist[0];
  app.innerHTML="<section class='hero'><div class='hero-card'><p class='eyebrow'>CITY BLUE // GK MODE</p><h2 class='hero-title'>READY TO<br><span>LEVEL UP?</span></h2><p class='muted'>PT-programmet klart. Én øvelse om gangen. Gjør jobben, logg settene, ferdig.</p><div class='hero-actions'><button class='primary' data-action='start'>"+(cur?"Fortsett økten":"Start økten")+" &nbsp;▶</button><button class='secondary' data-view='program'>Se program</button></div><div class='pitch-lines'></div><div class='tiny' style='margin-top:10px'>GK inspiration • Donnarumma</div></div></section>"+
@@ -56,18 +56,19 @@ function workout(){
  let ix=Math.max(0,Math.min(cur.index,cfg.length-1));cur.index=ix;save(KEY.cur,cur);
  const ex=cfg[ix],log=cur.exercises[ix],done=cur.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0),all=cur.exercises.reduce((a,e)=>a+e.sets.length,0),pct=all?done/all*100:0,timed=ex.type==="time"||ex.type==="stretch";
  const activeSet=log.sets.findIndex(s=>!s.done);
- let rows=log.sets.map((s,si)=>{
-   let a=ex.weight!=null?"<div class='field-mini'><input inputmode='decimal' data-set='"+si+"' data-field='weight' value='"+(s.weight??"")+"'><span>"+(ex.type==="assist"?"støtte":"kg")+"</span></div>":"<div class='field-mini'><input value='"+(timed?(ex.duration||30):s.reps)+"' "+(timed?"disabled":"inputmode='numeric' data-set='"+si+"' data-field='reps'")+"'><span>"+(timed?"sek":"reps")+"</span></div>";
-   let b=ex.weight!=null?"<div class='field-mini'><input inputmode='numeric' data-set='"+si+"' data-field='reps' value='"+s.reps+"'><span>reps</span></div>":"<div class='field-mini'><input value='"+(timed?esc(ex.reps):"")+"' disabled><span>"+(timed?"mål":"")+"</span></div>";
-   return"<div class='set-row "+(s.done?"done":"")+"'><div class='set-num'>"+(si+1)+"</div>"+a+b+"<button class='check-btn' data-check='"+si+"' aria-label='Sett ferdig'>"+(s.done?"✓":"○")+"</button></div>";
- }).join("");
- app.innerHTML="<div class='workout-head'><div><p class='eyebrow'>LIVE ØKT</p><h2>"+done+"/"+all+" sett</h2></div><button class='icon-btn' id='quitWorkout'>×</button></div><div class='progress-track'><i style='width:"+pct+"%'></i></div>"+
- "<section class='focus-card'><div class='focus-index'><span>ØVELSE "+String(ix+1).padStart(2,"0")+" / "+cfg.length+"</span><span>"+(ex.type==="assist"?"GK // SUPPORT":"THEODOR // WORK")+"</span></div><h2>"+esc(ex.name)+"</h2>"+
- "<div class='target-line'>"+(ex.weight!=null?"<span class='target-pill'>"+(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg")+"</span>":"")+"<span class='target-pill'>"+ex.sets+" sett</span><span class='target-pill'>"+esc(ex.reps)+"</span></div>"+
- "<div class='technique'>"+esc(ex.desc)+"</div>"+(timed?"<div class='timer-box'><div><div class='tiny'>SETT "+(activeSet<0?log.sets.length:activeSet+1)+" / "+log.sets.length+"</div><div class='timer-time' id='timerTime'>"+formatTime(remaining||ex.duration||30)+"</div></div><button id='timerBtn' "+(activeSet<0?"disabled":"")+">"+(running?"Pause":"Start")+" "+(ex.duration||30)+"s</button></div>":"")+"<div class='set-list'>"+rows+"</div>"+
- "<button class='primary full' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Alle sett ferdige ✓":"Sett "+(activeSet+1)+" av "+log.sets.length+" ferdig ✓")+"</button><div class='spacer'></div>"+
- "<div class='focus-actions'><button class='secondary' id='prevEx' "+(ix===0?"disabled":"")+">← Forrige</button><button class='primary' id='nextEx'>"+(ix===cfg.length-1?"Fullfør økt":"Neste →")+"</button></div></section>";
+ const si=activeSet<0?log.sets.length-1:activeSet,s=log.sets[si];
+ const fields=timed?"":
+   "<div class='active-fields'>"+(ex.weight!=null?"<label class='active-field'><span>"+(ex.type==="assist"?"Støtte · kg":"Vekt · kg")+"</span><input aria-label='"+(ex.type==="assist"?"Støttevekt":"Vekt")+"' inputmode='decimal' data-set='"+si+"' data-field='weight' value='"+(s.weight??"")+"'></label>":"")+
+   "<label class='active-field'><span>Repetisjoner</span><input aria-label='Repetisjoner' inputmode='numeric' data-set='"+si+"' data-field='reps' value='"+s.reps+"'></label></div>";
+ app.innerHTML="<div class='workout-head'><div><p class='eyebrow'>ØVELSE "+(ix+1)+" AV "+cfg.length+"</p><span class='tiny'>"+done+" / "+all+" sett fullført</span></div><button class='icon-btn' id='quitWorkout' aria-label='Avslutt økten'>×</button></div><div class='progress-track'><i style='width:"+pct+"%'></i></div>"+
+ "<section class='focus-card'><div class='workout-title'><h2>"+esc(ex.name)+"</h2><button class='exercise-guide' data-detail='"+ex.id+"'>Slik gjør du ⓘ</button></div>"+
+ "<div class='target-line'>"+(ex.weight!=null?"<span class='target-pill'>"+(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg")+"</span>":"")+"<span class='target-pill'>"+esc(ex.reps)+(timed?"":" reps")+"</span></div>"+
+ "<div class='active-set'><p class='eyebrow'>"+(activeSet<0?"ALLE SETT FERDIGE":"NÅ · SETT "+(si+1)+" AV "+log.sets.length)+"</p><div class='set-steps' aria-label='Settstatus'>"+log.sets.map((item,i)=>"<span class='set-step "+(item.done?"done":i===activeSet?"current":"")+"'>"+(item.done?"✓":i+1)+"</span>").join("")+"</div>"+
+ (timed?"<div class='timer-box'><div class='timer-time' id='timerTime'>"+formatTime(remaining||ex.duration||30)+"</div><button id='timerBtn' "+(activeSet<0?"disabled":"")+">"+(running?"Pause":remaining?"Fortsett":"Start timer")+"</button></div>":fields)+"</div>"+
+ "<div class='workout-controls'><button class='primary full' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Alle sett ferdige ✓":"Sett "+(si+1)+" ferdig ✓")+"</button>"+
+ "<div class='focus-actions'><button class='secondary' id='prevEx' "+(ix===0?"disabled":"")+">← Forrige</button><button class='secondary' id='nextEx'>"+(ix===cfg.length-1?"Fullfør økt":"Neste øvelse →")+"</button></div></div></section>";
 }
+
 function formatTime(s){s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function completeSet(si){
  if(!cur)return;
@@ -87,16 +88,20 @@ function startTimer(seconds){
  if(si<0)return;
  if(running){stopTimer(true);return}
  if(!remaining)remaining=seconds;
- timerSet={session:cur.id,index:cur.index,set:si};running=true;timerUI();
+ timerSet={session:cur.id,index:cur.index,set:si};running=true;timerUI();countdownFlash();
  timer=setInterval(()=>{
-   remaining--;const e=$("#timerTime");if(e)e.textContent=formatTime(remaining);
+   remaining--;countdownFlash();const e=$("#timerTime");if(e)e.textContent=formatTime(remaining);
    if(remaining<=0){
      const completed=timerSet;stopTimer(false);signal();
      if(cur&&cur.id===completed.session&&cur.index===completed.index)completeSet(completed.set);
    }
  },1000);
 }
-function stopTimer(keep=true){clearInterval(timer);timer=null;running=false;if(!keep){remaining=0;timerSet=null}timerUI()}
+function countdownFlash(){
+ if(!running||remaining<1||remaining>5)return;
+ document.body.classList.remove("countdown-flash");void document.body.offsetWidth;document.body.classList.add("countdown-flash");
+}
+function stopTimer(keep=true){document.body.classList.remove("countdown-flash");clearInterval(timer);timer=null;running=false;if(!keep){remaining=0;timerSet=null}timerUI()}
 function timerUI(){const b=$("#timerBtn");if(b)b.textContent=running?"Pause":remaining?"Fortsett":"Start";const e=$("#timerTime");if(e&&remaining)e.textContent=formatTime(remaining)}
 function signal(){if(navigator.vibrate)navigator.vibrate([120,70,120]);if(localStorage.getItem(KEY.sound)==="off")return;try{const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=740;g.gain.value=.04;o.start();o.stop(c.currentTime+.16)}catch{}}
 function finish(){

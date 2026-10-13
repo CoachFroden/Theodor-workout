@@ -83,3 +83,37 @@ button{cursor:pointer}
 .nav-btn{border:0;background:transparent;color:#6f8799;display:grid;place-items:center;gap:3px;font-size:17px;min-height:54px}.nav-btn b{font-size:9px;letter-spacing:.02em}.nav-btn.active{color:var(--sky)}.nav-start{position:relative;color:#05233a}.nav-start span{width:50px;height:50px;border-radius:17px;background:linear-gradient(145deg,var(--sky2),var(--sky));display:grid;place-items:center;box-shadow:0 8px 24px rgba(111,199,255,.25)}.nav-start b{color:var(--sky);margin-top:2px}
 .toast{position:fixed;left:50%;bottom:105px;transform:translateX(-50%) translateY(15px);background:#d8f4ff;color:#05233a;padding:11px 15px;border-radius:999px;font-weight:900;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:80;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(min-width:560px){.main{padding-inline:22px}.hero-title{font-size:44px}}
+
+/* The active workout fits the phone; exercise instructions open separately. */
+.workout-mode .topbar,.workout-mode .bottom-nav{display:none}
+.workout-mode .app-shell{height:100dvh;min-height:0;padding:0}
+.workout-mode .main{height:100%;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));gap:8px}
+.workout-mode .workout-head{flex:none;margin:0;min-height:42px}
+.workout-mode .progress-track{flex:none;margin:0;height:4px}
+.workout-mode .focus-card{flex:1;min-height:0;display:flex;flex-direction:column;padding:18px;gap:10px;border-radius:24px}
+.workout-mode .workout-title{flex:none}
+.workout-mode .focus-card h2{font-size:clamp(20px,5.8vw,28px);line-height:1.12;margin:0 0 8px}
+.exercise-guide{padding:4px 0;border:0;background:none;color:var(--sky2);font-size:12px;font-weight:700;min-height:30px}
+.workout-mode .target-line{flex:none;margin:0;gap:6px}
+.workout-mode .target-pill{padding:6px 10px}
+.active-set{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:0;text-align:center}
+.set-steps{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.set-step{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:850}
+.set-step.current{border:2px solid var(--sky);color:var(--sky2);background:rgba(111,199,255,.13)}
+.set-step.done{background:rgba(57,230,164,.12);color:var(--green);border-color:rgba(57,230,164,.3)}
+.active-fields{display:flex;justify-content:center;gap:12px}
+.active-field{flex:1;max-width:150px;text-align:left}
+.active-field span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.active-field input{width:100%;height:60px;border:1px solid rgba(111,199,255,.2);border-radius:16px;background:#071521;color:var(--ink);font-size:26px;font-weight:850;text-align:center}
+.workout-mode .timer-box{display:flex;flex-direction:column;gap:12px;border:0;background:none;margin:0;padding:0}
+.workout-mode .timer-time{font-size:clamp(48px,16vw,72px);line-height:1.05}
+.workout-mode .timer-box button{min-height:48px;min-width:160px;font-size:17px}
+.workout-controls{flex:none}
+.workout-mode .focus-actions{grid-template-columns:1fr 1.4fr;gap:8px;margin-top:8px}
+.workout-mode .primary,.workout-mode .secondary{min-height:48px;padding:12px 10px;font-size:14px}
+button:disabled{opacity:.45;cursor:default}
+.workout-mode .toast{bottom:calc(132px + env(safe-area-inset-bottom));max-width:calc(100% - 28px);white-space:normal;text-align:center}
+body.countdown-flash::after{content:"";position:fixed;inset:0;z-index:70;pointer-events:none;background:rgba(255,190,60,.22);box-shadow:inset 0 0 0 7px rgba(255,190,60,.7);animation:countdown-pulse .45s ease-out both}
+@keyframes countdown-pulse{from{opacity:1}to{opacity:0}}
+@media(max-height:600px){.workout-mode .focus-card{padding:12px;gap:6px}.active-set{gap:6px}.workout-mode .focus-card h2{font-size:20px}.workout-mode .timer-time{font-size:46px}.active-field input{height:48px}.workout-mode .main{gap:6px}}
+@media(prefers-reduced-motion:reduce){body.countdown-flash::after{animation:none;background:transparent;box-shadow:inset 0 0 0 5px rgba(255,190,60,.7)}}
