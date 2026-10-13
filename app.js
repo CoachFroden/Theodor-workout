@@ -6,7 +6,7 @@ const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 let cfg=load(KEY.cfg,window.ACTIVE_DEFAULTS).map((x,i)=>Object.assign({},window.ACTIVE_DEFAULTS[i],x));
 let hist=load(KEY.hist,[]);
 let cur=load(KEY.cur,null);
-let view="home",timer=null,remaining=0,running=false;
+let view="home",timer=null,remaining=0,running=false,timerSet=null;
 const app=$("#app");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const firstRep=s=>parseInt((String(s).match(/\d+/)||["0"])[0],10)||0;
@@ -55,6 +55,7 @@ function workout(){
  if(!cur){startWorkout();return}
  let ix=Math.max(0,Math.min(cur.index,cfg.length-1));cur.index=ix;save(KEY.cur,cur);
  const ex=cfg[ix],log=cur.exercises[ix],done=cur.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0),all=cur.exercises.reduce((a,e)=>a+e.sets.length,0),pct=all?done/all*100:0,timed=ex.type==="time"||ex.type==="stretch";
+ const activeSet=log.sets.findIndex(s=>!s.done);
  let rows=log.sets.map((s,si)=>{
    let a=ex.weight!=null?"<div class='field-mini'><input inputmode='decimal' data-set='"+si+"' data-field='weight' value='"+(s.weight??"")+"'><span>"+(ex.type==="assist"?"støtte":"kg")+"</span></div>":"<div class='field-mini'><input value='"+(timed?(ex.duration||30):s.reps)+"' "+(timed?"disabled":"inputmode='numeric' data-set='"+si+"' data-field='reps'")+"'><span>"+(timed?"sek":"reps")+"</span></div>";
    let b=ex.weight!=null?"<div class='field-mini'><input inputmode='numeric' data-set='"+si+"' data-field='reps' value='"+s.reps+"'><span>reps</span></div>":"<div class='field-mini'><input value='"+(timed?esc(ex.reps):"")+"' disabled><span>"+(timed?"mål":"")+"</span></div>";
@@ -63,13 +64,40 @@ function workout(){
  app.innerHTML="<div class='workout-head'><div><p class='eyebrow'>LIVE ØKT</p><h2>"+done+"/"+all+" sett</h2></div><button class='icon-btn' id='quitWorkout'>×</button></div><div class='progress-track'><i style='width:"+pct+"%'></i></div>"+
  "<section class='focus-card'><div class='focus-index'><span>ØVELSE "+String(ix+1).padStart(2,"0")+" / "+cfg.length+"</span><span>"+(ex.type==="assist"?"GK // SUPPORT":"THEODOR // WORK")+"</span></div><h2>"+esc(ex.name)+"</h2>"+
  "<div class='target-line'>"+(ex.weight!=null?"<span class='target-pill'>"+(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg")+"</span>":"")+"<span class='target-pill'>"+ex.sets+" sett</span><span class='target-pill'>"+esc(ex.reps)+"</span></div>"+
- "<div class='technique'>"+esc(ex.desc)+"</div>"+(timed?"<div class='timer-box'><div><div class='tiny'>SETT-TIMER</div><div class='timer-time' id='timerTime'>"+formatTime(remaining||ex.duration||30)+"</div></div><button id='timerBtn'>"+(running?"Pause":"Start")+" "+(ex.duration||30)+"s</button></div>":"")+"<div class='set-list'>"+rows+"</div>"+
+ "<div class='technique'>"+esc(ex.desc)+"</div>"+(timed?"<div class='timer-box'><div><div class='tiny'>SETT "+(activeSet<0?log.sets.length:activeSet+1)+" / "+log.sets.length+"</div><div class='timer-time' id='timerTime'>"+formatTime(remaining||ex.duration||30)+"</div></div><button id='timerBtn' "+(activeSet<0?"disabled":"")+">"+(running?"Pause":"Start")+" "+(ex.duration||30)+"s</button></div>":"")+"<div class='set-list'>"+rows+"</div>"+
+ "<button class='primary full' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Alle sett ferdige ✓":"Sett "+(activeSet+1)+" av "+log.sets.length+" ferdig ✓")+"</button><div class='spacer'></div>"+
  "<div class='focus-actions'><button class='secondary' id='prevEx' "+(ix===0?"disabled":"")+">← Forrige</button><button class='primary' id='nextEx'>"+(ix===cfg.length-1?"Fullfør økt":"Neste →")+"</button></div></section>";
 }
 function formatTime(s){s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
-function startTimer(seconds){if(!remaining)remaining=seconds;if(running){stopTimer(true);return}running=true;timerUI();timer=setInterval(()=>{remaining--;const e=$("#timerTime");if(e)e.textContent=formatTime(remaining);if(remaining<=0){stopTimer(false);signal();toast("Tid! ✓")}},1000)}
-function stopTimer(keep=true){clearInterval(timer);timer=null;running=false;if(!keep)remaining=0;timerUI()}
-function timerUI(){const b=$("#timerBtn");if(b)b.textContent=running?"Pause":"Start";const e=$("#timerTime");if(e&&remaining)e.textContent=formatTime(remaining)}
+function completeSet(si){
+ if(!cur)return;
+ const log=cur.exercises[cur.index];
+ if(si==null)si=log.sets.findIndex(s=>!s.done);
+ if(si<0||!log.sets[si]||log.sets[si].done)return;
+ stopTimer(false);log.sets[si].done=true;save(KEY.cur,cur);
+ if(log.sets.every(s=>s.done)){
+   if(cur.index===cur.exercises.length-1){finish();return}
+   cur.index++;save(KEY.cur,cur);toast("Alle sett ferdige – neste øvelse ✓");
+ }else toast("Sett "+(si+1)+" ferdig ✓");
+ workout();
+}
+function startTimer(seconds){
+ if(!cur)return;
+ const si=cur.exercises[cur.index].sets.findIndex(s=>!s.done);
+ if(si<0)return;
+ if(running){stopTimer(true);return}
+ if(!remaining)remaining=seconds;
+ timerSet={session:cur.id,index:cur.index,set:si};running=true;timerUI();
+ timer=setInterval(()=>{
+   remaining--;const e=$("#timerTime");if(e)e.textContent=formatTime(remaining);
+   if(remaining<=0){
+     const completed=timerSet;stopTimer(false);signal();
+     if(cur&&cur.id===completed.session&&cur.index===completed.index)completeSet(completed.set);
+   }
+ },1000);
+}
+function stopTimer(keep=true){clearInterval(timer);timer=null;running=false;if(!keep){remaining=0;timerSet=null}timerUI()}
+function timerUI(){const b=$("#timerBtn");if(b)b.textContent=running?"Pause":remaining?"Fortsett":"Start";const e=$("#timerTime");if(e&&remaining)e.textContent=formatTime(remaining)}
 function signal(){if(navigator.vibrate)navigator.vibrate([120,70,120]);if(localStorage.getItem(KEY.sound)==="off")return;try{const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=740;g.gain.value=.04;o.start();o.stop(c.currentTime+.16)}catch{}}
 function finish(){
  const fin=new Date(),done=cur.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0),mins=Math.max(1,Math.round((fin-new Date(cur.startedAt))/60000));
@@ -108,7 +136,8 @@ document.addEventListener("click",e=>{
  if(e.target.closest("[data-action='start']")){startWorkout();return}
  const eb=e.target.closest("[data-edit]");if(eb){edit(eb.dataset.edit);return}
  const db=e.target.closest("[data-detail]");if(db){showDetail(db.dataset.detail);return}
- const cb=e.target.closest("[data-check]");if(cb&&cur){let s=cur.exercises[cur.index].sets[Number(cb.dataset.check)];s.done=!s.done;save(KEY.cur,cur);workout();return}
+ const cb=e.target.closest("[data-check]");if(cb&&cur){const si=Number(cb.dataset.check),s=cur.exercises[cur.index].sets[si];if(!s.done)completeSet(si);else{stopTimer(false);s.done=false;save(KEY.cur,cur);workout()}return}
+ if(e.target.id==="completeSet"&&cur){completeSet();return}
  if(e.target.id==="prevEx"&&cur){stopTimer(false);cur.index=Math.max(0,cur.index-1);save(KEY.cur,cur);workout();return}
  if(e.target.id==="nextEx"&&cur){if(cur.index===cfg.length-1)finish();else{stopTimer(false);cur.index++;save(KEY.cur,cur);workout()}return}
  if(e.target.id==="quitWorkout"){if(confirm("Avslutte økten? Det som er registrert i denne økten slettes.")){cur=null;localStorage.removeItem(KEY.cur);setView("home")}return}
