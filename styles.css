@@ -126,3 +126,14 @@ body.countdown-flash::after{content:"";position:fixed;inset:0;z-index:70;pointer
 @media(max-height:600px){.workout-mode .focus-actions{margin-top:12px;padding-top:10px}.undo-set{margin-top:6px;min-height:32px}}
 
 .workout-mode .primary.set-completed,.workout-mode .primary.set-completed:disabled{background:var(--green);color:#05241a;opacity:1;box-shadow:0 8px 24px rgba(57,230,164,.18)}
+
+/* Make the exercise and the active set values readable at a glance. */
+.workout-mode .workout-title{padding-bottom:8px;border-bottom:2px solid rgba(111,199,255,.25)}
+.workout-mode .workout-title h2{font-size:clamp(26px,7.7vw,36px);font-weight:950;line-height:1.08;color:#fff;letter-spacing:-.025em}
+.workout-mode .target-pill{font-size:15px;padding:7px 12px;color:#e6f6ff;background:rgba(111,199,255,.17);border:1px solid rgba(111,199,255,.2)}
+.workout-mode .active-fields{gap:12px;width:100%;margin:0 auto}
+.workout-mode .active-field{max-width:190px}
+.workout-mode .active-field span{font-size:14px;font-weight:850;color:#e6f6ff;margin-bottom:8px;text-align:center}
+.workout-mode .active-field input{height:72px;font-size:38px;font-weight:950;border:2px solid var(--sky);background:#102b40;color:#fff;border-radius:18px;box-shadow:0 4px 18px rgba(111,199,255,.1)}
+.workout-mode .active-field input:focus{outline:2px solid var(--green);outline-offset:2px}
+@media(max-height:600px){.workout-mode .workout-title{padding-bottom:5px}.workout-mode .workout-title h2{font-size:24px}.workout-mode .target-pill{font-size:13px;padding:5px 9px}.workout-mode .active-field span{font-size:13px;margin-bottom:5px}.workout-mode .active-field input{height:56px;font-size:32px}}
