@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s);
-const KEY={cfg:"tw_cfg",hist:"tw_hist",cur:"tw_cur",spot:"tw_spot",sound:"tw_sound"};
+const KEY={cfg:"tw_cfg",hist:"tw_hist",cur:"tw_cur",spot:"tw_spot",sound:"tw_sound",finishUndo:"tw_finish_undo"};
 const clone=x=>JSON.parse(JSON.stringify(x));
 const load=(k,f)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):clone(f)}catch{return clone(f)}};
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
@@ -49,43 +49,73 @@ function more(){
  "<div class='section-head'><div><p class='eyebrow'>IPHONE</p><h2>Hjemskjerm</h2></div></div><div class='card'><strong>Installer som app</strong><p class='muted'>Åpne siden i Safari → Del → Legg til på Hjem-skjerm. Da får den eget TW-ikon og åpnes uten nettleserfelt.</p></div>"+
  "<div class='section-head'><div><p class='eyebrow'>DATA</p><h2>Sikkerhetskopi</h2></div></div><div class='card'><button class='secondary full' id='exportData'>Eksporter treningsdata</button><div class='spacer'></div><label class='ghost full' style='display:block;text-align:center'>Importer treningsdata<input id='importData' type='file' accept='application/json' hidden></label><p class='tiny'>Data lagres kun lokalt på telefonen. Eksport gir en JSON-fil som sikkerhetskopi.</p></div>";
 }
-function makeSession(){return{id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),startedAt:new Date().toISOString(),index:0,exercises:cfg.map(ex=>({id:ex.id,name:ex.name,type:ex.type,sets:Array.from({length:Number(ex.sets)||1},()=>({weight:ex.weight,reps:firstRep(ex.reps),done:false}))}))}}
+function makeSession(){return{id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())),startedAt:new Date().toISOString(),index:0,round:0,undo:[],exercises:cfg.map(ex=>({id:ex.id,name:ex.name,type:ex.type,sets:Array.from({length:Number(ex.sets)||1},()=>({weight:ex.weight,reps:firstRep(ex.reps),done:false}))}))}}
 function startWorkout(){if(!cur){cur=makeSession();save(KEY.cur,cur)}view="workout";document.querySelectorAll(".nav-btn[data-view]").forEach(b=>b.classList.remove("active"));render();window.scrollTo({top:0})}
 function workout(){
  if(!cur){startWorkout();return}
+ if(!Number.isInteger(cur.round))cur.round=Math.min(...cur.exercises.map(e=>{const i=e.sets.findIndex(s=>!s.done);return i<0?e.sets.length:i}));
+ if(cur.roundEnd){roundSummary();return}
  let ix=Math.max(0,Math.min(cur.index,cfg.length-1));cur.index=ix;save(KEY.cur,cur);
  const ex=cfg[ix],log=cur.exercises[ix],done=cur.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0),all=cur.exercises.reduce((a,e)=>a+e.sets.length,0),pct=all?done/all*100:0,timed=ex.type==="time"||ex.type==="stretch";
- const activeSet=log.sets.findIndex(s=>!s.done);
- const si=activeSet<0?log.sets.length-1:activeSet,s=log.sets[si];
+ const activeSet=log.sets[cur.round]&&!log.sets[cur.round].done?cur.round:-1;
+ const si=Math.min(cur.round,log.sets.length-1),s=log.sets[si];
  const fields=timed?"":
    "<div class='active-fields'>"+(ex.weight!=null?"<label class='active-field'><span>"+(ex.type==="assist"?"Støtte · kg":"Vekt · kg")+"</span><input aria-label='"+(ex.type==="assist"?"Støttevekt":"Vekt")+"' inputmode='decimal' data-set='"+si+"' data-field='weight' value='"+(s.weight??"")+"'></label>":"")+
    "<label class='active-field'><span>Repetisjoner</span><input aria-label='Repetisjoner' inputmode='numeric' data-set='"+si+"' data-field='reps' value='"+s.reps+"'></label></div>";
- app.innerHTML="<div class='workout-head'><div><p class='eyebrow'>ØVELSE "+(ix+1)+" AV "+cfg.length+"</p><span class='tiny'>"+done+" / "+all+" sett fullført</span></div><button class='icon-btn' id='quitWorkout' aria-label='Avslutt økten'>×</button></div><div class='progress-track'><i style='width:"+pct+"%'></i></div>"+
+ app.innerHTML="<div class='workout-head'><div><p class='eyebrow'>RUNDE "+(cur.round+1)+" · ØVELSE "+(ix+1)+" AV "+cfg.length+"</p><span class='tiny'>"+done+" / "+all+" sett fullført</span></div><button class='icon-btn' id='quitWorkout' aria-label='Avslutt økten'>×</button></div><div class='progress-track'><i style='width:"+pct+"%'></i></div>"+
  "<section class='focus-card'><div class='workout-title'><h2>"+esc(ex.name)+"</h2><button class='exercise-guide' data-detail='"+ex.id+"'>Slik gjør du ⓘ</button></div>"+
  "<div class='target-line'>"+(ex.weight!=null?"<span class='target-pill'>"+(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg")+"</span>":"")+"<span class='target-pill'>"+esc(ex.reps)+(timed?"":" reps")+"</span></div>"+
- "<div class='active-set'><p class='eyebrow'>"+(activeSet<0?"ALLE SETT FERDIGE":"NÅ · SETT "+(si+1)+" AV "+log.sets.length)+"</p><div class='set-steps' aria-label='Settstatus'>"+log.sets.map((item,i)=>"<span class='set-step "+(item.done?"done":i===activeSet?"current":"")+"'>"+(item.done?"✓":i+1)+"</span>").join("")+"</div>"+
+ "<div class='active-set'><p class='eyebrow'>"+(activeSet<0?"SETTET ER FERDIG":"NÅ · SETT "+(si+1)+" AV "+log.sets.length)+"</p><div class='set-steps' aria-label='Settstatus'>"+log.sets.map((item,i)=>"<span class='set-step "+(item.done?"done":i===activeSet?"current":"")+"'>"+(item.done?"✓":i+1)+"</span>").join("")+"</div>"+
  (timed?"<div class='timer-box'><div class='timer-time' id='timerTime'>"+formatTime(remaining||ex.duration||30)+"</div><button id='timerBtn' "+(activeSet<0?"disabled":"")+">"+(running?"Pause":remaining?"Fortsett":"Start timer")+"</button></div>":fields)+"</div>"+
- "<div class='workout-controls'><button class='primary full' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Alle sett ferdige ✓":"Sett "+(si+1)+" ferdig ✓")+"</button>"+
- "<div class='focus-actions'><button class='secondary' id='prevEx' "+(ix===0?"disabled":"")+">← Forrige</button><button class='secondary' id='nextEx'>"+(ix===cfg.length-1?"Fullfør økt":"Neste øvelse →")+"</button></div></div></section>";
+ "<div class='workout-controls'><button class='primary full' id='completeSet' "+(activeSet<0?"disabled":"")+">"+(activeSet<0?"Settet er ferdig ✓":"Sett "+(si+1)+" ferdig ✓")+"</button>"+
+ "<button class='undo-set' id='undoWorkout' "+(cur.undo?.length?"":"disabled")+">↶ Angre siste valg</button><div class='focus-actions'><button class='secondary' id='prevEx' "+(previousExercise()<0?"disabled":"")+">← Forrige</button><button class='secondary' id='nextEx'>"+(nextExercise()<0?"Avslutt runden →":"Neste øvelse →")+"</button></div></div></section>";
 }
 
 function formatTime(s){s=Math.max(0,s||0);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function rememberWorkout(){
+ const snapshot=clone(cur);delete snapshot.undo;
+ cur.undo=cur.undo||[];cur.undo.push(snapshot);if(cur.undo.length>60)cur.undo.shift();
+}
+function undoWorkout(){
+ if(!cur?.undo?.length)return;
+ stopTimer(false);const stack=cur.undo,snapshot=stack.pop();cur=Object.assign(snapshot,{undo:stack});save(KEY.cur,cur);workout();toast("Siste valg er angret");
+}
+function nextExercise(){return cur.exercises.findIndex((e,i)=>i>cur.index&&e.sets[cur.round])}
+function previousExercise(){for(let i=cur.index-1;i>=0;i--)if(cur.exercises[i].sets[cur.round])return i;return -1}
+function advanceExercise(){
+ const next=nextExercise();
+ if(next<0)cur.roundEnd=true;else cur.index=next;
+ save(KEY.cur,cur);workout();
+}
 function completeSet(si){
- if(!cur)return;
- const log=cur.exercises[cur.index];
- if(si==null)si=log.sets.findIndex(s=>!s.done);
- if(si<0||!log.sets[si]||log.sets[si].done)return;
- stopTimer(false);log.sets[si].done=true;save(KEY.cur,cur);
- if(log.sets.every(s=>s.done)){
-   if(cur.index===cur.exercises.length-1){finish();return}
-   cur.index++;save(KEY.cur,cur);toast("Alle sett ferdige – neste øvelse ✓");
- }else toast("Sett "+(si+1)+" ferdig ✓");
- workout();
+ if(!cur||cur.roundEnd)return;
+ const log=cur.exercises[cur.index];if(si==null)si=cur.round;
+ if(si!==cur.round||!log.sets[si]||log.sets[si].done)return;
+ rememberWorkout();stopTimer(false);log.sets[si].done=true;
+ advanceExercise();
+}
+function confirmCompleteSet(){
+ if(!cur||cur.roundEnd)return;
+ const ex=cur.exercises[cur.index],set=ex.sets[cur.round];if(!set||set.done)return;
+ if(confirm("Registrere sett "+(cur.round+1)+" av «"+ex.name+"» som ferdig?"))completeSet();
+}
+function roundSummary(){
+ const eligible=cur.exercises.filter(e=>e.sets[cur.round]),done=eligible.filter(e=>e.sets[cur.round].done).length;
+ const hasNext=cur.exercises.some(e=>e.sets[cur.round+1]);
+ app.innerHTML="<section class='focus-card round-summary'><p class='eyebrow'>RUNDE "+(cur.round+1)+"</p><h2>"+(done===eligible.length?"Runden er ferdig ✓":"Runden er gjennomgått")+"</h2><p class='muted'>"+done+" av "+eligible.length+" øvelser fullført i denne runden.</p><div class='round-choices'>"+
+ (hasNext?"<button class='primary full' id='nextRound'>Gå til sett "+(cur.round+2)+" →</button>":"")+
+ (done<eligible.length?"<button class='secondary full' id='missingExercises'>Tilbake til uferdige øvelser</button>":"")+
+ "<button class='secondary full' id='finishWorkout'>Avslutt og lagre treningen</button><button class='undo-set' id='undoWorkout' "+(cur.undo?.length?"":"disabled")+">↶ Angre siste valg</button></div></section>";
+}
+function nextRound(){
+ if(!cur||!cur.exercises.some(e=>e.sets[cur.round+1]))return;
+ if(cur.exercises.some(e=>e.sets[cur.round]&&!e.sets[cur.round].done)&&!confirm("Noen øvelser er ikke fullført. Gå videre likevel?"))return;
+ rememberWorkout();stopTimer(false);cur.round++;cur.roundEnd=false;cur.index=cur.exercises.findIndex(e=>e.sets[cur.round]);save(KEY.cur,cur);workout();
 }
 function startTimer(seconds){
  if(!cur)return;
- const si=cur.exercises[cur.index].sets.findIndex(s=>!s.done);
- if(si<0)return;
+ const si=cur.round;
+ if(cur.roundEnd||!cur.exercises[cur.index].sets[si]||cur.exercises[cur.index].sets[si].done)return;
  if(running){stopTimer(true);return}
  if(!remaining)remaining=seconds;
  timerSet={session:cur.id,index:cur.index,set:si};running=true;timerUI();countdownFlash();
@@ -105,8 +135,13 @@ function stopTimer(keep=true){document.body.classList.remove("countdown-flash");
 function timerUI(){const b=$("#timerBtn");if(b)b.textContent=running?"Pause":remaining?"Fortsett":"Start";const e=$("#timerTime");if(e&&remaining)e.textContent=formatTime(remaining)}
 function signal(){if(navigator.vibrate)navigator.vibrate([120,70,120]);if(localStorage.getItem(KEY.sound)==="off")return;try{const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=740;g.gain.value=.04;o.start();o.stop(c.currentTime+.16)}catch{}}
 function finish(){
+ save(KEY.finishUndo,cur);
  const fin=new Date(),done=cur.exercises.reduce((a,e)=>a+e.sets.filter(s=>s.done).length,0),mins=Math.max(1,Math.round((fin-new Date(cur.startedAt))/60000));
  hist.unshift({id:cur.id,startedAt:cur.startedAt,finishedAt:fin.toISOString(),completedSets:done,durationMin:mins,exercises:cur.exercises});save(KEY.hist,hist);localStorage.removeItem(KEY.cur);cur=null;stopTimer(false);$("#finishSummary").textContent=done+" sett • "+mins+" min • +"+(done*10+40)+" XP";$("#finishDialog").showModal();
+}
+function undoFinish(){
+ const session=load(KEY.finishUndo,null);if(!session)return;
+ hist=hist.filter(h=>h.id!==session.id);save(KEY.hist,hist);cur=session;save(KEY.cur,cur);localStorage.removeItem(KEY.finishUndo);$("#finishDialog").close();startWorkout();
 }
 function detailValue(ex){
  const weight=ex.weight==null?"Ingen":(ex.type==="assist"?nfmt(ex.weight)+" kg støtte":nfmt(ex.weight)+" kg");
@@ -141,11 +176,16 @@ document.addEventListener("click",e=>{
  if(e.target.closest("[data-action='start']")){startWorkout();return}
  const eb=e.target.closest("[data-edit]");if(eb){edit(eb.dataset.edit);return}
  const db=e.target.closest("[data-detail]");if(db){showDetail(db.dataset.detail);return}
- const cb=e.target.closest("[data-check]");if(cb&&cur){const si=Number(cb.dataset.check),s=cur.exercises[cur.index].sets[si];if(!s.done)completeSet(si);else{stopTimer(false);s.done=false;save(KEY.cur,cur);workout()}return}
- if(e.target.id==="completeSet"&&cur){completeSet();return}
- if(e.target.id==="prevEx"&&cur){stopTimer(false);cur.index=Math.max(0,cur.index-1);save(KEY.cur,cur);workout();return}
- if(e.target.id==="nextEx"&&cur){if(cur.index===cfg.length-1)finish();else{stopTimer(false);cur.index++;save(KEY.cur,cur);workout()}return}
- if(e.target.id==="quitWorkout"){if(confirm("Avslutte økten? Det som er registrert i denne økten slettes.")){cur=null;localStorage.removeItem(KEY.cur);setView("home")}return}
+ if(e.target.id==="completeSet"){confirmCompleteSet();return}
+ if(e.target.id==="undoWorkout"){undoWorkout();return}
+ if(e.target.id==="nextRound"){nextRound();return}
+ if(e.target.id==="missingExercises"&&cur){rememberWorkout();cur.roundEnd=false;cur.index=cur.exercises.findIndex(e=>e.sets[cur.round]&&!e.sets[cur.round].done);save(KEY.cur,cur);workout();return}
+ if(e.target.id==="prevEx"&&cur){const prev=previousExercise();if(prev>=0){rememberWorkout();stopTimer(false);cur.index=prev;save(KEY.cur,cur);workout()}return}
+ if(e.target.id==="nextEx"&&cur){
+   if(cur.exercises[cur.index].sets[cur.round]&&!cur.exercises[cur.index].sets[cur.round].done&&!confirm("Gå videre uten å fullføre dette settet?"))return;
+   rememberWorkout();stopTimer(false);advanceExercise();return;
+ }
+ if((e.target.id==="quitWorkout"||e.target.id==="finishWorkout")&&cur){if(confirm("Avslutte treningen og lagre det som er gjennomført?"))finish();return}
  if(e.target.id==="timerBtn"){startTimer(cfg[cur.index].duration||30);return}
  if(e.target.id==="detailClose"||e.target.id==="detailDone"){$("#exerciseDialog").close();return}
  if(e.target.id==="editorReset"){e.preventDefault();resetEdit();return}
@@ -153,6 +193,7 @@ document.addEventListener("click",e=>{
  if(e.target.id==="saveSpotify"){localStorage.setItem(KEY.spot,$("#spotifyUrl").value.trim());toast("Spotify-lenke lagret ✓");return}
  if(e.target.id==="openSpotify"){let u=($("#spotifyUrl")?.value||localStorage.getItem(KEY.spot)||"").trim();window.open(u.startsWith("https://open.spotify.com/")?u:"https://open.spotify.com/","_blank","noopener");return}
  if(e.target.id==="exportData"){exportData();return}
+ if(e.target.id==="undoFinish"){undoFinish();return}
  if(e.target.id==="finishClose"){$("#finishDialog").close();setView("home");return}
  if(e.target.id==="soundBtn"){const off=localStorage.getItem(KEY.sound)==="off";localStorage.setItem(KEY.sound,off?"on":"off");$("#soundIcon").textContent=off?"◐":"○";toast(off?"Lyd på":"Lyd av");return}
 });

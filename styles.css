@@ -117,3 +117,10 @@ body.countdown-flash::after{content:"";position:fixed;inset:0;z-index:70;pointer
 @keyframes countdown-pulse{from{opacity:1}to{opacity:0}}
 @media(max-height:600px){.workout-mode .focus-card{padding:12px;gap:6px}.active-set{gap:6px}.workout-mode .focus-card h2{font-size:20px}.workout-mode .timer-time{font-size:46px}.active-field input{height:48px}.workout-mode .main{gap:6px}}
 @media(prefers-reduced-motion:reduce){body.countdown-flash::after{animation:none;background:transparent;box-shadow:inset 0 0 0 5px rgba(255,190,60,.7)}}
+
+.workout-mode .focus-actions{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.undo-set{display:block;width:100%;min-height:36px;margin-top:10px;padding:6px;border:0;background:transparent;color:var(--sky2);font-size:13px;font-weight:750}
+.round-summary{justify-content:center;text-align:center}
+.round-choices{display:grid;gap:16px;margin-top:20px}
+.round-summary .undo-set{margin-top:0}
+@media(max-height:600px){.workout-mode .focus-actions{margin-top:12px;padding-top:10px}.undo-set{margin-top:6px;min-height:32px}}
